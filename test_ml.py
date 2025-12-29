@@ -1,46 +1,81 @@
 import pytest
+import pandas as pd
 import numpy as np
-from ml.model import compute_model_metrics, train_model, inference
 from sklearn.ensemble import RandomForestClassifier
+from ml.model import train_model, compute_model_metrics, inference
+from ml.data import process_data 
+# TODO: add necessary import
 
+
+#Create sample data for testing
+@pytest.fixture
+def sample_data():
+    data={
+        "age" : [25, 38, 28, 44],
+        "workclass": ["Private", "Self-emp-not-inc", "Local-gov", "Private"],
+        "education": ["Bachelors", "HS-grad", "Assoc-voc", "Some-college"],
+        "marital-status": ["Never-married", "Married-civ-spouse", "Divorced", "Separated"], 
+        "occupation": ["Tech-support", "Craft-repair", "Exec-managerial", "Sales"], 
+        "relationship": ["Not-in-family", "Husband", "Unmarried", "Own-child"],
+        "race":["White", "Black", "Asian-Pac-Islander", "White"],
+        "sex": ["Male", "Female", "Female", "Male"],
+        "native-country":["United-States", "United-States", "India", "United-States"],
+        "salary":[">50K", "<=50K", ">50K", "<=50K"]
+
+    }
+    return pd.DataFrame(data)
+
+# TODO: implement the first test. Change the function name and input as needed
 def test_compute_model_metrics():
     """
-    Test compute model metrics returns correct values
+    # Test if compute model metrics returns metric values
     """
-    y_true = np.array([1,0,1,0])
-    y_pred = np.array([1,0,1,0])
+    # Your code here
+    y_true = np.array([1, 0, 1, 0])
+    y_preds = np.array([1, 0, 1, 1])
+    precision, recall, fbeta = compute_model_metrics(y_true, y_preds)
+    assert np.isclose(precision, 0.6667, atol=0.01), "The precision is not meeting expectations"
+    assert np.isclose(recall, 1.0, atol=0.01), "The recall is not meeting expectations"
+    assert np.isclose(fbeta, 0.8, atol=0.01), "The F1 score is not meeting expectations"
 
-    precision, recall, fbeta = compute_model_metrics(y_true, y_pred)
 
-    assert recall == 1.0
-    assert precision == 1.0
-    assert fbeta == 1.0
-
-
-def test_train_model():
+# TODO: implement the second test. Change the function name and input as needed
+def test_inference(sample_data):
     """
-    Test trained model is a RandomForestClassifier instance
+    # Test if inference returns predictions of the correct length.
     """
-    X_train = np.array([[0,1],[1,0],[0,0],[1,1]])
-    y_train = np.array([0,1,0,1])
+    # Your code here
+    cat_features = [
+        "workclass", "education", "marital-status", "occupation", 
+        "relationship", "race", "sex", "native-country"
+    ]
+    X, y, encoder, lb = process_data(
+        sample_data, 
+        categorical_features=cat_features,
+        label="salary",
+        training=True
+    )
+    model = train_model(X, y)
+    preds = inference(model, X)
+    assert len(preds) == len(y)
 
-    model = train_model(X_train, y_train)
 
-    assert isinstance(model, RandomForestClassifier), "Expected RandomForestClassifier"
- 
 
-def test_inference():
+# TODO: implement the third test. Change the function name and input as needed
+def test_train_model(sample_data):
     """
-    Test inference returns valid predicted values
+    # Test if the train_model trains a model
     """
-
-    X_train = np.array([[0,0],[1,1]])
-    y_train = np.array([0,1])
-    X_test = np.array([[0,1],[1,0]])
-
-    model = RandomForestClassifier(random_state=42)
-    model.fit(X_train, y_train) 
-    
-    preds = inference(model, X_test)
-
-    assert set(preds).issubset({1,0}), "Expected values are 1 and 0"
+    # Your code here
+    cat_features = [
+        "workclass", "education", "marital-status", "occupation",
+        "relationship", "race", "sex", "native-country"
+    ]
+    X, y, _, _ = process_data(
+        sample_data,
+        categorical_features=cat_features,
+        label="salary",
+        training=True
+    )
+    model = train_model(X, y)
+    assert isinstance(model, RandomForestClassifier), "model does not match expectations"
