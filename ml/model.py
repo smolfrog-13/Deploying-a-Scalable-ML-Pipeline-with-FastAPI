@@ -11,68 +11,28 @@ def process_data(
     encoder=None,
     lb=None,
 ):
-    """
-    Process the data used in the machine learning pipeline.
-
-    Processes the data using one hot encoding for the categorical features and a
-    label binarizer for the labels. This can be used in either training or
-    inference/validation.
-
-    Inputs
-    ------
-    X : pd.DataFrame
-        Dataframe containing the features and label.
-    categorical_features : list[str]
-        List containing the names of the categorical features (default=[])
-    label : str
-        Name of the label column in X. If None, y will be returned as None.
-    training : bool
-        Indicator if training mode or inference mode.
-    encoder : OneHotEncoder
-        Trained sklearn OneHotEncoder, only used if training=False.
-    lb : LabelBinarizer
-        Trained sklearn LabelBinarizer, only used if training=False.
-
-    Returns
-    -------
-    X_processed : np.array
-        Processed feature data.
-    y : np.array or None
-        Processed labels if label is provided, otherwise None.
-    encoder : OneHotEncoder
-        Trained encoder.
-    lb : LabelBinarizer
-        Trained label binarizer.
-    """
-
     if categorical_features is None:
         categorical_features = []
 
-    X = X.copy()
-
-    # Split label if provided
-    if label is not None:
-        y = X.pop(label).values
-    else:
-        y = None
-
-    # Categorical features
     X_categorical = X[categorical_features].values
-    X_continuous = X.drop(columns=categorical_features).values
+    X_continuous = X.drop(columns=categorical_features + ([label] if label else []))
 
     if training:
         encoder = OneHotEncoder(sparse=False, handle_unknown="ignore")
-        X_categorical = encoder.fit_transform(X_categorical)
+        X_cat = encoder.fit_transform(X_categorical)
+    else:
+        X_cat = encoder.transform(X_categorical)
 
-        if y is not None:
+    X_processed = np.concatenate([X_cat, X_continuous.values], axis=1)
+
+    if label is not None:
+        y = X[label].values
+        if training:
             lb = LabelBinarizer()
             y = lb.fit_transform(y).ravel()
-    else:
-        X_categorical = encoder.transform(X_categorical)
-
-        if y is not None:
+        else:
             y = lb.transform(y).ravel()
-
-    X_processed = np.concatenate([X_categorical, X_continuous], axis=1)
+    else:
+        y = np.array([])
 
     return X_processed, y, encoder, lb
