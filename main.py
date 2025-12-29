@@ -26,21 +26,22 @@ class Data(BaseModel):
     hours_per_week: int = Field(..., example=40, alias="hours-per-week")
     native_country: str = Field(..., example="United-States", alias="native-country")
 
-project_path = os.getcwd()
+encoder_path = "/mnt/c/Users/MeowMal/Deploying-a-Scalable-ML-Pipeline-with-FastAPI/model/encoder.pkl" # TODO: enter the path for the saved encoder 
+encoder = load_model(encoder_path)
 
-path = os.path.join(project_path, "model", "encoder.pkl")
-encoder = load_model(path)
+model_path = "/mnt/c/Users/MeowMal/Deploying-a-Scalable-ML-Pipeline-with-FastAPI/model/model.pkl" # TODO: enter the path for the saved model 
+model = load_model(model_path)
 
-path = os.path.join(project_path, "model", "model.pkl")
-model = load_model(path)
+# TODO: create a RESTful API using FastAPI
+app = FastAPI() # your code here
 
-app = FastAPI()
-
-
+# TODO: create a GET on the root giving a welcome message
 @app.get("/")
 async def get_root():
     """ Say hello!"""
-    return {"greeting": "Hello!"}
+    # your code here
+    return {"Hello from the API!"}
+
 
 # TODO: create a POST on a different path that does model inference
 @app.post("/data/")
@@ -64,11 +65,15 @@ async def post_inference(data: Data):
         "native-country",
     ]
     data_processed, _, _, _ = process_data(
+        # your code here
+        # use data as data input
+        # use training = False
+        # do not need to pass lb as input
         data,
-        training=False,
         categorical_features=cat_features,
+        label=None,
+        training=False,
         encoder=encoder
     )
-
-    _inference = model.predict(data_processed)
+    _inference = inference(model, data_processed) # your code here to predict the result using data_processed
     return {"result": apply_label(_inference)}
