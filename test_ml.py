@@ -1,53 +1,46 @@
 import pytest
-import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
+from ml.model import compute_model_metrics, train_model, inference
 from sklearn.ensemble import RandomForestClassifier
-from ml.data import process_data
-from ml.model import train_model, compute_model_metrics
 
-# TODO: implement the first test. Change the function name and input as needed
-def test_one():
+def test_compute_model_metrics():
     """
-    # Test that process_data outputs arrays of the expected shape.
+    Test compute model metrics returns correct values
     """
-    data = pd.read_csv("data/census.csv")
-    categorical_features = ["workclass", "education", "marital-status", "occupation", "relationship", "race", "sex", "native-country"]
-    
-    # Process the data
-    X, y, _, _ = process_data(data, categorical_features=categorical_features, label="salary", training=True)
-    
-    # Check that the processed data is not empty
-    assert X.shape[0] > 0, "Processed data should not be empty"
-    assert y.shape[0] > 0, "Labels should not be empty"
-    # Check that X and y have the same number of rows
-    assert X.shape[0] == y.shape[0], "X and y should have the same length"
+    y_true = np.array([1,0,1,0])
+    y_pred = np.array([1,0,1,0])
 
-# TODO: implement the second test. Change the function name and input as needed
-def test_two():
+    precision, recall, fbeta = compute_model_metrics(y_true, y_pred)
+
+    assert recall == 1.0
+    assert precision == 1.0
+    assert fbeta == 1.0
+
+
+def test_train_model():
     """
-    # Test that train_model returns a RandomForestClassifier instance.
+    Test trained model is a RandomForestClassifier instance
     """
-    # Dummy data to avoid training on the full dataset during testing
-    X_train = np.random.rand(100, 5)
-    y_train = np.random.randint(0, 2, 100)
-    
+    X_train = np.array([[0,1],[1,0],[0,0],[1,1]])
+    y_train = np.array([0,1,0,1])
+
     model = train_model(X_train, y_train)
-    
-    # Check that the model is an instance of RandomForestClassifier
-    assert isinstance(model, RandomForestClassifier), "The model should be a RandomForestClassifier"
 
-# TODO: implement the third test. Change the function name and input as needed
-def test_three():
-    """
-    # Test that compute_model_metrics returns values between 0 and 1.
-    """
-    y_true = [0, 1, 1, 0, 1]
-    y_pred = [0, 1, 1, 0, 0]
+    assert isinstance(model, RandomForestClassifier), "Expected RandomForestClassifier"
+ 
 
-    precision, recall, f1 = compute_model_metrics(y_true, y_pred)
+def test_inference():
+    """
+    Test inference returns valid predicted values
+    """
+
+    X_train = np.array([[0,0],[1,1]])
+    y_train = np.array([0,1])
+    X_test = np.array([[0,1],[1,0]])
+
+    model = RandomForestClassifier(random_state=42)
+    model.fit(X_train, y_train) 
     
-    # Check that precision, recall, and F1-score are between 0 and 1
-    assert 0 <= precision <= 1, "Precision should be between 0 and 1"
-    assert 0 <= recall <= 1, "Recall should be between 0 and 1"
-    assert 0 <= f1 <= 1, "F1 score should be between 0 and 1"
+    preds = inference(model, X_test)
+
+    assert set(preds).issubset({1,0}), "Expected values are 1 and 0"
