@@ -2,7 +2,8 @@ import pickle
 from sklearn.metrics import fbeta_score, precision_score, recall_score
 # TODO: add necessary import
 from sklearn.ensemble  import RandomForestClassifier
-from sklearn.metrics import accuracy_score, precision_score, recall_score  
+from sklearn.metrics import accuracy_score, precision_score, recall_score 
+from ml.data import process_data
 
 # Optional: implement hyperparameter tuning.
 def train_model(X_train, y_train):
