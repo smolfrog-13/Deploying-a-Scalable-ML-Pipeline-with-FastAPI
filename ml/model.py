@@ -3,8 +3,9 @@
 import pickle
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import fbeta_score, precision_score, recall_score
-from ml.data import process_data
 import numpy as np
+
+from ml.data import process_data
 
 def train_model(X_train, y_train):
     model = RandomForestClassifier(n_estimators=100, random_state=42)
