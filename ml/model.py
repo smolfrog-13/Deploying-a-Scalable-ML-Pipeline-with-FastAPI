@@ -1,4 +1,6 @@
 # ml/model.py
+print("ml/model.py loaded")
+print("process_data available?", 'process_data' in globals())
 
 import pickle
 from sklearn.ensemble import RandomForestClassifier
