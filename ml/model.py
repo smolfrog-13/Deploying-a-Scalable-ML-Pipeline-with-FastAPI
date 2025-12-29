@@ -1,8 +1,10 @@
-print("LOADED MODEL FROM:", __file__)
+import numpy as np
+import pandas as pd
 import pickle
 from sklearn.metrics import fbeta_score, precision_score, recall_score
 # TODO: add necessary import
 from sklearn.ensemble import RandomForestClassifier
+from ml.data import process_data
 
 
 # Optional: implement hyperparameter tuning.
@@ -48,7 +50,6 @@ def performance_on_categorical_slice(
     """
     Computes the model metrics on a slice of the data specified by a column name and value.
     """
-    from ml.data import process_data  # ✅ FIX — import AFTER docstring
 
     input_data = data[data[column_name] == slice_value]
     if input_data.empty:
