@@ -1,5 +1,4 @@
 import os
-
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
@@ -12,6 +11,7 @@ from ml.model import (
     save_model,
     train_model,
 )
+
 # TODO: load the census.csv data
 project_path = os.getcwd()
 data_path = os.path.join(project_path, "data", "census.csv")
@@ -20,7 +20,7 @@ data = pd.read_csv(data_path) # your code here
 
 # TODO: split the provided data to have a train dataset and a test dataset
 # Optional enhancement, use K-fold cross validation instead of a train-test split.
-train, test = train_test_split(data, test_size=0.20, random_state=42)# Your code here
+train, test = train_test_split(data, test_size=0.20, random_state=42) # Your code here
 
 # DO NOT MODIFY
 cat_features = [
@@ -44,7 +44,7 @@ X_train, y_train, encoder, lb = process_data(
     categorical_features=cat_features,
     label="salary",
     training=True
-    )
+)
 
 X_test, y_test, _, _ = process_data(
     test,
@@ -59,17 +59,20 @@ X_test, y_test, _, _ = process_data(
 model = train_model(X_train, y_train) # your code here
 
 # save the model and the encoder
-model_path = os.path.join(project_path, "model", "model.pkl")
+# Ensure model folder exists
+model_folder = os.path.join(project_path, "model")
+os.makedirs(model_folder, exist_ok=True)
+
+model_path = os.path.join(model_folder, "model.pkl")
 save_model(model, model_path)
-encoder_path = os.path.join(project_path, "model", "encoder.pkl")
+encoder_path = os.path.join(model_folder, "encoder.pkl")
 save_model(encoder, encoder_path)
 print(f"Model saved to {model_path}")
 print(f"Model saved to {encoder_path}")
+
 # load the model
 print(f"Loading model from {model_path}")
-model = load_model(
-    model_path
-) 
+model = load_model(model_path) 
 
 # TODO: use the inference function to run the model inferences on the test dataset.
 preds = inference(model, X_test) # your code here
@@ -80,6 +83,10 @@ print(f"Precision: {p:.4f} | Recall: {r:.4f} | F1: {fb:.4f}")
 
 # TODO: compute the performance on model slices using the performance_on_categorical_slice function
 # iterate through the categorical features
+slice_output_path = os.path.join(project_path, "slice_output.txt")
+# Clear previous file
+open(slice_output_path, "w").close()
+
 for col in cat_features:
     # iterate through the unique values in one categorical feature
     for slicevalue in sorted(test[col].unique()):
@@ -96,7 +103,7 @@ for col in cat_features:
             lb=lb,
             model=model
         )
-        with open("slice_output.txt", "a") as f: 
+        with open(slice_output_path, "a") as f: 
             print(f"{col}: {slicevalue}, Count: {count:,}", file=f)
             print(f"Precision: {p:.4f} | Recall: {r:.4f} | F1: {fb:.4f}", file=f)
             #using append mode to preserve metrics across multiple runs and avoid overwriting previous results in case of code failure.
