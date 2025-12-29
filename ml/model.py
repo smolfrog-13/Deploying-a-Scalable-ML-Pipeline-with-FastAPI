@@ -1,3 +1,7 @@
+print("LOADING ml/model.py", __file__)
+from ml.data import process_data
+print("process_data imported!", process_data)
+
 import pickle
 from sklearn.metrics import fbeta_score, precision_score, recall_score
 from ml.data import process_data
