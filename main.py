@@ -7,6 +7,14 @@ from pydantic import BaseModel, Field
 from ml.data import apply_label, process_data
 from ml.model import inference, load_model
 
+model_path = "model/model.pkl"
+encoder_path = "model/encoder.pkl"
+
+# Load your trained objects
+model = load_model(model_path)
+encoder = load_model(encoder_path)
+
+
 # DO NOT MODIFY
 class Data(BaseModel):
     age: int = Field(..., example=37)
